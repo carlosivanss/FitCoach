@@ -1,37 +1,38 @@
-# FitCoach · Administración web
+# FitCoach · Panel web
 
-Panel web de administración: clientes, expedientes, rutinas, biblioteca de ejercicios, progreso y ajustes. No incluye pagos, suscripciones ni mensualidades.
+Panel React para administrar pacientes, invitaciones, bajas, rutinas, biblioteca de ejercicios y progreso real almacenado en Supabase.
 
-## Ejecutar localmente
+## Desarrollo local
 
-Desde esta carpeta:
+Desde la raíz del repositorio:
 
 ```powershell
-node server.mjs
+npm install
+Copy-Item .env.example .env.local
+npm run dev
 ```
 
-Abre `http://localhost:8082`.
+Completa en `.env.local` solamente `VITE_SUPABASE_URL` y `VITE_SUPABASE_PUBLISHABLE_KEY`. Ambas identifican al proyecto desde el navegador y son públicas por diseño. La protección de expedientes depende de las políticas RLS.
 
-## Arnold V2
+Nunca agregues una `service_role`, secret key ni contraseña a archivos `VITE_*`, al código React o al repositorio.
 
-La app no reutiliza las credenciales de la aplicación móvil. Para conectar Arnold V2:
+## Invitaciones
 
-1. Copia `config.example.js` como `config.js`.
-2. Coloca exclusivamente la URL del proyecto Arnold V2 y su **publishable key**.
-3. Inicia sesión desde el botón **Conectar Arnold V2** con una cuenta `admin` o `trainer` ya autorizada por las políticas RLS.
+El botón **Invitar** llama a la Edge Function `invite-patient`. Despliégala con Supabase CLI y configura `PATIENT_INVITE_REDIRECT_URL` como secreto de la función. Supabase proporciona automáticamente sus credenciales internas dentro de las Edge Functions.
 
-No incluyas una clave `service_role`, `secret` ni ninguna otra credencial privada en este proyecto.
+```powershell
+supabase functions deploy invite-patient
+supabase secrets set PATIENT_INVITE_REDIRECT_URL=https://tu-app-movil-o-web/activar
+```
 
-## Ejercicios y uso sin conexión
+La función verifica que quien invita sea `admin` o el entrenador principal del paciente antes de utilizar la API administrativa.
 
-El catálogo completo de 1,324 ejercicios se guarda en `data/exercises.json`. El service worker conserva la aplicación y el catálogo después de la primera visita, para que las búsquedas, instrucciones, el constructor de rutinas y los borradores continúen disponibles sin Internet.
+## Comandos
 
-Las miniaturas se cargan del repositorio de origen cuando hay conexión. Los datos y las instrucciones siguen disponibles sin ellas. Revisa `EXERCISES_NOTICE.md` y conserva su atribución para cualquier uso de las imágenes o GIFs.
+- `npm run dev`: servidor local en el puerto 8082.
+- `npm run build`: compilación de producción en `dist`.
+- `npm test`: pruebas automatizadas.
 
-## Sincronización de datos
+## Ejercicios
 
-- Clientes y rutinas se guardan directamente en Arnold V2 al estar conectado.
-- Cuando no hay red, los nuevos elementos se guardan como borradores en el navegador.
-- Al guardar una rutina conectada, sus ejercicios se incorporan a `fc_exercises` mediante el nombre único y se relacionan con `fc_routine_exercises`.
-
-Antes de usar información real, aplica las migraciones de Arnold V2 y revisa las políticas RLS para confirmar que solo administradores y entrenadores autorizados puedan consultar expedientes.
+El catálogo mantiene la licencia y atribución incluidas en `EXERCISES_NOTICE.md` y `EXERCISES_LICENSE.md`.
