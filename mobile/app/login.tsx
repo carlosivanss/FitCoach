@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import {
   ActivityIndicator,
   KeyboardAvoidingView,
@@ -14,6 +14,7 @@ import {
 import { supabase } from "@/lib/supabase";
 
 export default function LoginScreen() {
+  const { linkError } = useLocalSearchParams<{ linkError?: string }>();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -92,7 +93,7 @@ export default function LoginScreen() {
             style={styles.input}
             value={password}
           />
-          {error ? <Text style={styles.error}>{error}</Text> : null}
+          {error || linkError ? <Text style={styles.error}>{error || linkError}</Text> : null}
           <Pressable
             disabled={busy || !email || !password}
             onPress={signIn}

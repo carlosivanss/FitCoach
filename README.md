@@ -40,3 +40,5 @@ pnpm typecheck
 ## Acceso
 
 El nutriólogo crea el expediente desde el panel. La Edge Function `invite-patient` valida su rol, envía la invitación de Supabase y enlaza la cuenta con `fc_clients`. La baja es lógica y conserva el historial.
+
+En Supabase, agrega `fitcoach://activate` en **Authentication → URL Configuration → Redirect URLs** y configura ese mismo valor en `PATIENT_INVITE_REDIRECT_URL` para la Edge Function. El enlace del correo abrirá la aplicación para que el paciente establezca su contraseña.

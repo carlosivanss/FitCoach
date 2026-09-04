@@ -22,7 +22,7 @@ El botón **Invitar** llama a la Edge Function `invite-patient`. Despliégala co
 
 ```powershell
 supabase functions deploy invite-patient
-supabase secrets set PATIENT_INVITE_REDIRECT_URL=https://tu-app-movil-o-web/activar
+supabase secrets set PATIENT_INVITE_REDIRECT_URL=fitcoach://activate
 ```
 
 La función verifica que quien invita sea `admin` o el entrenador principal del paciente antes de utilizar la API administrativa.
