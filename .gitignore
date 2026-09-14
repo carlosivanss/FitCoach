@@ -14,3 +14,4 @@ mobile/android/local.properties
 mobile/android/**/*.jks
 mobile/android/**/*.keystore
 mobile/android/app/debug.keystore
+supabase/.temp/
