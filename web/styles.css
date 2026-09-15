@@ -79,11 +79,13 @@ h3 { margin: 0; font-size: 15px; }
 .routine-grid, .progress-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
 .day-picker { display: flex; flex-wrap: wrap; gap: 6px; }
 .day-picker .selected { color: #0d190f; background: var(--green); border-color: var(--green); }
+.ai-button { width: 100%; justify-content: space-between; }.ai-button span { color: var(--muted); font-size: 10px; text-transform: uppercase; letter-spacing: .05em; }
+.routine-day-tabs { display: grid; grid-template-columns: repeat(auto-fit,minmax(105px,1fr)); gap: 8px; margin: 17px 0; }.routine-day-tab { display: grid; gap: 3px; text-align: left; padding: 11px 12px; border: 1px solid var(--border); border-radius: 11px; color: var(--text); background: var(--surface-2); }.routine-day-tab span { color: var(--muted); font-size: 10px; }.routine-day-tab.active { border-color: var(--green); box-shadow: inset 0 0 0 1px var(--green); }.active-day-heading { display: flex; align-items: end; justify-content: space-between; gap: 15px; margin-bottom: 11px; }.active-day-heading h3,.active-day-heading p { margin: 0; }.builder-empty { color: var(--muted); font-size: 12px; line-height: 1.5; border: 1px dashed var(--border); border-radius: 10px; padding: 18px; text-align: center; }
 .builder-results { margin-top: 10px; max-height: 380px; overflow: auto; }
 .exercise-config { display: grid; gap: 8px; background: var(--surface-2); border-radius: 10px; padding: 10px; font-size: 12px; }
 .exercise-config > div { display: flex; gap: 8px; }
 .exercise-config label { display: flex; gap: 5px; align-items: center; color: var(--muted); }
-.exercise-config input { width: 56px; padding: 5px; border: 1px solid var(--border); border-radius: 6px; color: var(--text); background: var(--surface-3); }
+.exercise-config input { width: 56px; padding: 5px; border: 1px solid var(--border); border-radius: 6px; color: var(--text); background: var(--surface-3); }.exercise-config label:last-child input { width: 65px; }
 .exercise-config button { justify-self: end; color: var(--red); background: transparent; border: 0; }
 .notes-title { margin-top: 18px; }
 .chart { min-height: 240px; display: grid; grid-template-rows: 200px auto; }
