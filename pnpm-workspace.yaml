@@ -3,8 +3,7 @@ packages:
   - 'mobile'
   - 'packages/*'
 
-allowBuilds:
-  esbuild: set this to true or false
+nodeLinker: hoisted
 
-onlyBuiltDependencies:
-  - esbuild
+allowBuilds:
+  esbuild: true
