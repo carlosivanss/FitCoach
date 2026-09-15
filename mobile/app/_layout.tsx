@@ -10,7 +10,9 @@ export default function RootLayout() {
     async function handle(url: string | null) {
       if (!url || (!url.includes("access_token=") && !url.includes("code="))) return;
       try {
-        if (await consumeAuthLink(url)) router.replace("/activate");
+        const type = await consumeAuthLink(url);
+        if (type === "recovery") router.replace("/reset-password" as never);
+        else if (type === "invite") router.replace("/activate");
       } catch {
         router.replace({ pathname: "/login", params: { linkError: "La invitación expiró o no es válida." } });
       }

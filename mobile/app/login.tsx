@@ -58,7 +58,7 @@ export default function LoginScreen() {
     }
     setBusy(true);
     setError("");
-    const { error: resetError } = await supabase.auth.resetPasswordForEmail(email.trim());
+    const { error: resetError } = await supabase.auth.resetPasswordForEmail(email.trim(), { redirectTo: "fitcoach://activate?flow=recovery" });
     setBusy(false);
     setError(resetError ? resetError.message : "Revisa tu correo para cambiar la contraseña.");
   }

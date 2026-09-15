@@ -6,6 +6,7 @@ import { supabase } from "@/lib/supabase";
 type ExerciseRow = { id: number; day_of_week: number; sets: number; reps_min: number | null; reps_max: number | null; rest_seconds: number; order_index: number; fc_exercises: { name: string; muscle_group: string } | { name: string; muscle_group: string }[] };
 type LogValue = { reps: string; weight: string; done: boolean };
 type RoutineOption = { id: number; name: string; client_id: number; days_per_week: number; updated_at: string };
+const DAY_NAMES = ["", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"];
 
 export default function RoutineScreen() {
   const [loading, setLoading] = useState(true);
@@ -61,23 +62,17 @@ export default function RoutineScreen() {
     const currentIds = new Set(exercises.filter((item) => item.day_of_week === currentDay).map((item) => item.id));
     const completedLogs = Object.entries(logs).filter(([key, value]) => currentIds.has(Number(key.split("-")[0])) && value.done);
     if (!completedLogs.length) return Alert.alert("Falta completar series", "Marca al menos una serie antes de finalizar.");
+    const invalid = completedLogs.some(([, value]) => !Number.isInteger(Number(value.reps)) || Number(value.reps) < 0 || Number(value.reps) > 500 || (value.weight.trim() !== "" && (!Number.isFinite(Number(value.weight.replace(",", "."))) || Number(value.weight.replace(",", ".")) < 0)));
+    if (invalid) return Alert.alert("Revisa las series", "Las repeticiones deben ser números enteros y el peso no puede ser negativo.");
     setSaving(true);
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) { setSaving(false); return router.replace("/login"); }
     const completedAt = new Date();
     const beganAt = startedAt ?? completedAt;
-    const { data: session, error: sessionError } = await supabase.from("fc_workout_sessions").insert({ routine_id: routine.id, client_id: routine.client_id, recorded_by: user.id, status: "in_progress", started_at: beganAt.toISOString(), duration_seconds: Math.max(0, Math.round((completedAt.getTime() - beganAt.getTime()) / 1000)), notes: `Día ${currentDay}` }).select("id").single();
-    if (sessionError || !session) { setSaving(false); return Alert.alert("No se guardó la sesión", sessionError?.message ?? "Intenta nuevamente."); }
-    const rows = completedLogs.map(([key, value]) => { const [routineExerciseId, setNumber] = key.split("-").map(Number); return { session_id: session.id, routine_exercise_id: routineExerciseId, set_number: setNumber, reps_completed: value.reps ? Number(value.reps) : null, weight: value.weight ? Number(value.weight.replace(",", ".")) : null, weight_unit: "kg", completed_at: completedAt.toISOString() }; });
-    const { error } = await supabase.from("fc_set_logs").insert(rows);
-    if (error) {
-      await supabase.from("fc_workout_sessions").update({ status: "cancelled", notes: `No se guardaron las series del día ${currentDay}` }).eq("id", session.id);
-      setSaving(false);
-      return Alert.alert("No se guardaron las series", error.message);
-    }
-    const { error: completeError } = await supabase.from("fc_workout_sessions").update({ status: "completed", completed_at: completedAt.toISOString() }).eq("id", session.id);
+    const rows = completedLogs.map(([key, value]) => { const [routineExerciseId, setNumber] = key.split("-").map(Number); return { routine_exercise_id: routineExerciseId, set_number: setNumber, reps_completed: Number(value.reps), weight: value.weight.trim() ? Number(value.weight.replace(",", ".")) : null }; });
+    const { error: completeError } = await supabase.rpc("fc_complete_my_workout", { p_routine_id: routine.id, p_day_of_week: currentDay, p_started_at: beganAt.toISOString(), p_completed_at: completedAt.toISOString(), p_sets: rows });
     setSaving(false);
-    if (completeError) return Alert.alert("Series guardadas", "Las series se guardaron, pero la sesión quedó pendiente de finalizar. Intenta nuevamente más tarde.");
+    if (completeError) return Alert.alert("No se guardó el entrenamiento", completeError.message);
     Alert.alert("¡Entrenamiento completado!", "Tus pesos y repeticiones ya cuentan para tu progreso.", [{ text: "Ver inicio", onPress: () => router.replace("/") }]);
   }
 

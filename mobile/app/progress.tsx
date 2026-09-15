@@ -10,6 +10,7 @@ export default function ProgressScreen() {
   const [items, setItems] = useState<Measurement[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [measuredOn] = useState(new Date().toISOString().slice(0, 10));
   const [weight, setWeight] = useState("");
   const [fat, setFat] = useState("");
   const [muscle, setMuscle] = useState("");
@@ -22,7 +23,8 @@ export default function ProgressScreen() {
     const { data: client } = await supabase.from("fc_clients").select("id").eq("user_id", user.id).single();
     if (!client) { setLoading(false); return; }
     setClientId(client.id);
-    const { data } = await supabase.from("fc_body_measurements").select("id, measured_on, weight_kg, body_fat_percent, muscle_mass_kg, waist_cm").eq("client_id", client.id).order("measured_on", { ascending: false }).limit(12);
+    const { data, error } = await supabase.from("fc_body_measurements").select("id, measured_on, weight_kg, body_fat_percent, muscle_mass_kg, waist_cm").eq("client_id", client.id).order("measured_on", { ascending: false }).limit(12);
+    if (error) Alert.alert("No se pudo cargar el progreso", error.message);
     setItems((data ?? []) as Measurement[]); setLoading(false);
   }
   function numberOrNull(value: string) { return value.trim() ? Number(value.replace(",", ".")) : null; }
@@ -32,8 +34,8 @@ export default function ProgressScreen() {
     if (values.some((value) => value !== null && !Number.isFinite(value))) return Alert.alert("Revisa los datos", "Utiliza solamente números.");
     setSaving(true);
     const { data: { user } } = await supabase.auth.getUser();
-    if (!user) { setSaving(false); return; }
-    const { error } = await supabase.from("fc_body_measurements").insert({ client_id: clientId, recorded_by: user.id, weight_kg: numberOrNull(weight), body_fat_percent: numberOrNull(fat), muscle_mass_kg: numberOrNull(muscle), waist_cm: numberOrNull(waist) });
+    if (!user) { setSaving(false); return router.replace("/login"); }
+    const { error } = await supabase.rpc("fc_record_my_body_measurement", { p_measured_on: measuredOn, p_weight_kg: numberOrNull(weight), p_body_fat_percent: numberOrNull(fat), p_muscle_mass_kg: numberOrNull(muscle), p_waist_cm: numberOrNull(waist), p_notes: null });
     setSaving(false);
     if (error) return Alert.alert("No se guardaron las medidas", error.message);
     setWeight(""); setFat(""); setMuscle(""); setWaist(""); await load();

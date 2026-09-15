@@ -8,6 +8,7 @@ function paramsFromUrl(url: string) {
 
 export async function consumeAuthLink(url: string) {
   const params = paramsFromUrl(url);
+  const linkType = params.get("type") === "recovery" || params.get("flow") === "recovery" ? "recovery" : "invite";
   const errorDescription = params.get("error_description");
   if (errorDescription) throw new Error(decodeURIComponent(errorDescription.replace(/\+/g, " ")));
 
@@ -15,13 +16,13 @@ export async function consumeAuthLink(url: string) {
   if (code) {
     const { error } = await supabase.auth.exchangeCodeForSession(code);
     if (error) throw error;
-    return true;
+    return linkType;
   }
 
   const accessToken = params.get("access_token");
   const refreshToken = params.get("refresh_token");
-  if (!accessToken || !refreshToken) return false;
+  if (!accessToken || !refreshToken) return null;
   const { error } = await supabase.auth.setSession({ access_token: accessToken, refresh_token: refreshToken });
   if (error) throw error;
-  return true;
+  return linkType;
 }
