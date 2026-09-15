@@ -32,10 +32,15 @@ export default function ProgressScreen() {
     if (!clientId || ![weight, fat, muscle, waist].some((value) => value.trim())) return Alert.alert("Agrega una medida", "Captura al menos un dato para guardar.");
     const values = [weight, fat, muscle, waist].filter(Boolean).map(numberOrNull);
     if (values.some((value) => value !== null && !Number.isFinite(value))) return Alert.alert("Revisa los datos", "Utiliza solamente números.");
+    const parsed = { weight: numberOrNull(weight), fat: numberOrNull(fat), muscle: numberOrNull(muscle), waist: numberOrNull(waist) };
+    if (parsed.weight !== null && (parsed.weight < 10 || parsed.weight > 700)) return Alert.alert("Revisa el peso", "Debe estar entre 10 y 700 kg.");
+    if (parsed.fat !== null && (parsed.fat < 0 || parsed.fat > 100)) return Alert.alert("Revisa la grasa corporal", "Debe estar entre 0 y 100%.");
+    if (parsed.muscle !== null && (parsed.muscle < 0 || parsed.muscle > 500)) return Alert.alert("Revisa la masa muscular", "Debe estar entre 0 y 500 kg.");
+    if (parsed.waist !== null && (parsed.waist < 20 || parsed.waist > 400)) return Alert.alert("Revisa la cintura", "Debe estar entre 20 y 400 cm.");
     setSaving(true);
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) { setSaving(false); return router.replace("/login"); }
-    const { error } = await supabase.rpc("fc_record_my_body_measurement", { p_measured_on: measuredOn, p_weight_kg: numberOrNull(weight), p_body_fat_percent: numberOrNull(fat), p_muscle_mass_kg: numberOrNull(muscle), p_waist_cm: numberOrNull(waist), p_notes: null });
+    const { error } = await supabase.rpc("fc_record_my_body_measurement", { p_measured_on: measuredOn, p_weight_kg: parsed.weight, p_body_fat_percent: parsed.fat, p_muscle_mass_kg: parsed.muscle, p_waist_cm: parsed.waist, p_notes: null });
     setSaving(false);
     if (error) return Alert.alert("No se guardaron las medidas", error.message);
     setWeight(""); setFat(""); setMuscle(""); setWaist(""); await load();
