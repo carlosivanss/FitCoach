@@ -100,3 +100,43 @@ export function exerciseKind(x) {
   return (x?.secondary_muscles?.length || 0) >= 2 ? 'compound' : 'isolation';
 }
 export const KIND_LABEL = { compound: 'Compuesto', isolation: 'Aislado', cardio: 'Cardio' };
+
+/** Paciente con correo, sin cuenta vinculada y no dado de baja: la invitación sigue pendiente. */
+export const isInvitePending = (client) => Boolean(client?.email && !client.user_id && client.status !== 'archived');
+
+/** Valida el formulario de paciente. Devuelve un mensaje en español o '' si es válido. */
+export function validateClient(form, today = localDate()) {
+  const name = String(form.full_name || '').trim();
+  if (name.length < 2 || name.length > 120) return 'El nombre debe tener entre 2 y 120 caracteres.';
+  const email = String(form.email || '').trim();
+  if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return 'El correo no tiene un formato válido.';
+  const phone = String(form.phone || '').trim();
+  if (phone && phone.replace(/\D/g, '').length < 7) return 'El teléfono debe tener al menos 7 dígitos.';
+  if (form.height_cm !== '' && form.height_cm != null) {
+    const h = Number(form.height_cm);
+    if (!Number.isFinite(h) || h < 50 || h > 280) return 'La estatura debe estar entre 50 y 280 cm.';
+  }
+  if (form.birth_date && form.birth_date > today) return 'La fecha de nacimiento no puede ser futura.';
+  if (!form.id && form.initial_weight_kg !== '' && form.initial_weight_kg != null) {
+    const w = Number(form.initial_weight_kg);
+    if (!Number.isFinite(w) || w < 10 || w > 700) return 'El peso inicial debe estar entre 10 y 700 kg.';
+  }
+  return '';
+}
+
+/** Traduce errores de Postgres/PostgREST a mensajes comprensibles. */
+export function friendlyDbError(cause) {
+  const code = cause?.code;
+  if (code === '23505') return 'Ya existe un paciente con ese correo.';
+  if (code === '23514') return 'Algún dato está fuera del rango permitido. Revisa estatura, fecha de nacimiento y estado.';
+  if (code === '42501') return 'No tienes permiso para esta operación. Si eres administrador, verifica tu sesión con MFA.';
+  return '';
+}
+
+export const CLIENT_FILTERS = [['all', 'Todos'], ['active', 'Activos'], ['paused', 'Pausados'], ['invited', 'Invitación pendiente'], ['archived', 'Baja']];
+
+export function matchesClientFilter(client, filter) {
+  if (!filter || filter === 'all') return client.status !== 'archived';
+  if (filter === 'invited') return isInvitePending(client);
+  return client.status === filter;
+}

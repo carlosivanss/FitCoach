@@ -54,3 +54,9 @@ Los cambios de pacientes, mediciones y rutinas se guardan como borradores del us
 ### Navegación y biblioteca
 - La navegación vive en la barra superior (Resumen, Pacientes, Rutinas, Ejercicios, Progreso). **Ajustes**, **Sincronizar** y **Cerrar sesión** están en el menú del usuario, arriba a la derecha. Junto a él se ve si hay conexión y cuántos cambios esperan sincronizarse.
 - La biblioteca de ejercicios filtra por músculo y busca por nombre, músculo o equipo. La etiqueta Compuesto/Aislado es una aproximación: un ejercicio es compuesto si trabaja 2 o más músculos secundarios en el catálogo.
+
+## Módulo Pacientes (Registrar · Consultar · Modificar)
+
+- **Registrar**: «+ Nuevo paciente» valida los datos en el cliente, crea el expediente con `fc_create_client`, registra el peso inicial y envía la invitación. Sin conexión queda como borrador.
+- **Consultar**: búsqueda por nombre, correo, teléfono u objetivo; filtros por estado (Activos, Pausados, Invitación pendiente, Baja) y ficha con estatura, nacimiento, último peso y rutinas.
+- **Modificar**: edición con control de concurrencia (no sobrescribe si otro usuario cambió el expediente), baja lógica y reactivación. Los errores de Postgres se muestran en español.

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { buildRoutinePayload, equipmentLabel, exerciseKind, muscleInfo, clampInt, initials, isNetworkError, localDate, statusClass, statusText, workoutVolume } from './domain.js';
+import { validateClient, friendlyDbError, isInvitePending, matchesClientFilter, buildRoutinePayload, equipmentLabel, exerciseKind, muscleInfo, clampInt, initials, isNetworkError, localDate, statusClass, statusText, workoutVolume } from './domain.js';
 
 describe('reglas del panel', () => {
   it('traduce y clasifica estados de pacientes', () => {
@@ -46,5 +46,31 @@ describe('reglas del panel', () => {
     expect(muscleInfo('lats').es).toBe('Dorsales');
     expect(muscleInfo('algo nuevo').abbr).toBe('ALG');
     expect(equipmentLabel('body weight')).toBe('Peso corporal');
+  });
+});
+
+describe('módulo pacientes', () => {
+  it('valida el formulario', () => {
+    expect(validateClient({ full_name: 'A' })).toMatch(/nombre/);
+    expect(validateClient({ full_name: 'Ana Pérez', email: 'x' })).toMatch(/correo/);
+    expect(validateClient({ full_name: 'Ana Pérez', height_cm: '20' })).toMatch(/estatura/);
+    expect(validateClient({ full_name: 'Ana Pérez', birth_date: '2999-01-01' }, '2026-11-13')).toMatch(/futura/);
+    expect(validateClient({ full_name: 'Ana Pérez', email: 'a@b.co', phone: '5512345678', height_cm: '170', birth_date: '1990-05-01' })).toBe('');
+  });
+  it('traduce errores de base de datos', () => {
+    expect(friendlyDbError({ code: '23505' })).toMatch(/correo/);
+    expect(friendlyDbError({ code: '42501' })).toMatch(/permiso/);
+    expect(friendlyDbError({ code: 'XX' })).toBe('');
+  });
+  it('filtra por estado e invitación pendiente', () => {
+    const pending = { status: 'active', email: 'a@b.co', user_id: null };
+    const linked = { status: 'active', email: 'a@b.co', user_id: 'u' };
+    const gone = { status: 'archived', email: 'a@b.co', user_id: null };
+    expect(isInvitePending(pending)).toBe(true);
+    expect(isInvitePending(linked)).toBe(false);
+    expect(isInvitePending(gone)).toBe(false);
+    expect(matchesClientFilter(gone, 'all')).toBe(false);
+    expect(matchesClientFilter(gone, 'archived')).toBe(true);
+    expect(matchesClientFilter(pending, 'invited')).toBe(true);
   });
 });
