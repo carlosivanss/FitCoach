@@ -50,3 +50,7 @@ El catálogo mantiene la licencia y atribución incluidas en `EXERCISES_NOTICE.m
 
 ### Sin conexión
 Los cambios de pacientes, mediciones y rutinas se guardan como borradores del usuario en el navegador y se envían solos al volver Internet. Los que fallen por datos inválidos aparecen en **Ajustes** para descartarlos.
+
+### Navegación y biblioteca
+- La navegación vive en la barra superior (Resumen, Pacientes, Rutinas, Ejercicios, Progreso). **Ajustes**, **Sincronizar** y **Cerrar sesión** están en el menú del usuario, arriba a la derecha. Junto a él se ve si hay conexión y cuántos cambios esperan sincronizarse.
+- La biblioteca de ejercicios filtra por músculo y busca por nombre, músculo o equipo. La etiqueta Compuesto/Aislado es una aproximación: un ejercicio es compuesto si trabaja 2 o más músculos secundarios en el catálogo.

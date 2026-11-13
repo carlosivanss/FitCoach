@@ -48,7 +48,7 @@ export function buildRoutinePayload(routine) {
           name: x.name,
           muscle_group: x.target || x.muscle_group || x.category || 'general',
           secondary_muscles: x.secondary_muscles || [],
-          exercise_type: x.category === 'cardio' ? 'cardio' : 'compound',
+          exercise_type: exerciseKind(x),
           instructions: x.instruction_steps?.es || [],
           coaching_tip: x.equipment ? `Equipo: ${x.equipment}` : null,
           sets: clampInt(x.sets, 1, 20, 3),
@@ -60,3 +60,43 @@ export function buildRoutinePayload(routine) {
     })),
   };
 }
+
+/** Etiqueta, siglas y color por grupo muscular del catálogo (campo `target`). */
+export const MUSCLES = {
+  abs: { es: 'Abdominales', abbr: 'ABS', tone: 'amber' },
+  pectorals: { es: 'Pectorales', abbr: 'PEC', tone: 'rose' },
+  'serratus anterior': { es: 'Serrato', abbr: 'SER', tone: 'rose' },
+  biceps: { es: 'Bíceps', abbr: 'BIC', tone: 'violet' },
+  triceps: { es: 'Tríceps', abbr: 'TRI', tone: 'violet' },
+  forearms: { es: 'Antebrazos', abbr: 'ANT', tone: 'violet' },
+  glutes: { es: 'Glúteos', abbr: 'GLU', tone: 'green' },
+  quads: { es: 'Cuádriceps', abbr: 'CUA', tone: 'green' },
+  hamstrings: { es: 'Isquios', abbr: 'ISQ', tone: 'green' },
+  calves: { es: 'Pantorrillas', abbr: 'PAN', tone: 'green' },
+  adductors: { es: 'Aductores', abbr: 'ADU', tone: 'green' },
+  abductors: { es: 'Abductores', abbr: 'ABD', tone: 'green' },
+  delts: { es: 'Hombros', abbr: 'HOM', tone: 'blue' },
+  traps: { es: 'Trapecios', abbr: 'TRA', tone: 'blue' },
+  'levator scapulae': { es: 'Elevador escápula', abbr: 'ELE', tone: 'blue' },
+  lats: { es: 'Dorsales', abbr: 'DOR', tone: 'teal' },
+  'upper back': { es: 'Espalda alta', abbr: 'ESP', tone: 'teal' },
+  spine: { es: 'Lumbar', abbr: 'LUM', tone: 'teal' },
+  'cardiovascular system': { es: 'Cardio', abbr: 'CAR', tone: 'slate' },
+};
+
+export const EQUIPMENT_ES = {
+  'body weight': 'Peso corporal', dumbbell: 'Mancuerna', cable: 'Polea', barbell: 'Barra',
+  'leverage machine': 'Máquina', band: 'Banda elástica', kettlebell: 'Pesa rusa', 'smith machine': 'Smith',
+  'ez barbell': 'Barra Z', 'sled machine': 'Trineo', 'medicine ball': 'Balón medicinal', 'stability ball': 'Pelota suiza',
+  assisted: 'Asistido', weighted: 'Con lastre', roller: 'Rodillo', rope: 'Cuerda',
+};
+
+export const muscleInfo = (target) => MUSCLES[target] || { es: target ? target[0].toUpperCase() + target.slice(1) : 'General', abbr: String(target || 'GEN').slice(0, 3).toUpperCase(), tone: 'slate' };
+export const equipmentLabel = (value) => EQUIPMENT_ES[value] || (value ? value[0].toUpperCase() + value.slice(1) : 'Sin equipo');
+
+/** Aproximación: cardio, compuesto (2+ músculos secundarios) o aislado. */
+export function exerciseKind(x) {
+  if (x?.target === 'cardiovascular system' || x?.category === 'cardio') return 'cardio';
+  return (x?.secondary_muscles?.length || 0) >= 2 ? 'compound' : 'isolation';
+}
+export const KIND_LABEL = { compound: 'Compuesto', isolation: 'Aislado', cardio: 'Cardio' };

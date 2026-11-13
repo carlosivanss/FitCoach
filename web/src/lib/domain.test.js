@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { buildRoutinePayload, clampInt, initials, isNetworkError, localDate, statusClass, statusText, workoutVolume } from './domain.js';
+import { buildRoutinePayload, equipmentLabel, exerciseKind, muscleInfo, clampInt, initials, isNetworkError, localDate, statusClass, statusText, workoutVolume } from './domain.js';
 
 describe('reglas del panel', () => {
   it('traduce y clasifica estados de pacientes', () => {
@@ -37,5 +37,14 @@ describe('reglas del panel', () => {
     const ex = payload.p_days[0].exercises[0];
     expect([ex.sets, ex.reps_min, ex.reps_max, ex.rest_seconds]).toEqual([1, 12, 12, 90]);
     expect(ex.instructions).toEqual(['a']);
+  });
+
+  it('clasifica ejercicios y traduce etiquetas', () => {
+    expect(exerciseKind({ target: 'quads', secondary_muscles: ['glutes', 'calves'] })).toBe('compound');
+    expect(exerciseKind({ target: 'biceps', secondary_muscles: ['forearms'] })).toBe('isolation');
+    expect(exerciseKind({ target: 'cardiovascular system', secondary_muscles: [] })).toBe('cardio');
+    expect(muscleInfo('lats').es).toBe('Dorsales');
+    expect(muscleInfo('algo nuevo').abbr).toBe('ALG');
+    expect(equipmentLabel('body weight')).toBe('Peso corporal');
   });
 });
