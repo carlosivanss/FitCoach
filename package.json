@@ -1,0 +1,16 @@
+{
+  "name": "fitcoach",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "pnpm --dir web dev",
+    "dev:web": "pnpm --dir web dev",
+    "dev:mobile": "pnpm --dir mobile start",
+    "android": "pnpm --dir mobile android",
+    "ios": "pnpm --dir mobile ios",
+    "build": "pnpm --dir web build",
+    "preview": "pnpm --dir web preview",
+    "test": "pnpm --dir web test",
+    "typecheck": "pnpm --dir packages/shared typecheck && pnpm --dir mobile typecheck"
+  }
+}

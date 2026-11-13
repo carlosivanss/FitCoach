@@ -1,37 +1,78 @@
-# FitCoach · Administración web
+# FitCoach · Panel web
 
-Panel web de administración: clientes, expedientes, rutinas, biblioteca de ejercicios, progreso y ajustes. No incluye pagos, suscripciones ni mensualidades.
+Panel React para administrar pacientes, invitaciones, bajas, rutinas, biblioteca de ejercicios y progreso real almacenado en Supabase.
 
-## Ejecutar localmente
+## Desarrollo local
 
-Desde esta carpeta:
+Desde la raíz del repositorio:
 
 ```powershell
-node server.mjs
+pnpm install            # desde la raíz del repositorio
+cd web
+Copy-Item .env.example .env.local
+pnpm dev
 ```
 
-Abre `http://localhost:8082`.
+Completa en `.env.local` solamente `VITE_SUPABASE_URL` y `VITE_SUPABASE_PUBLISHABLE_KEY`. Ambas identifican al proyecto desde el navegador y son públicas por diseño. La protección de expedientes depende de las políticas RLS.
 
-## Arnold V2
+Nunca agregues una `service_role`, secret key ni contraseña a archivos `VITE_*`, al código React o al repositorio.
 
-La app no reutiliza las credenciales de la aplicación móvil. Para conectar Arnold V2:
+## Invitaciones
 
-1. Copia `config.example.js` como `config.js`.
-2. Coloca exclusivamente la URL del proyecto Arnold V2 y su **publishable key**.
-3. Inicia sesión desde el botón **Conectar Arnold V2** con una cuenta `admin` o `trainer` ya autorizada por las políticas RLS.
+El botón **Invitar** llama a la Edge Function `invite-patient`. Despliégala con Supabase CLI y configura `PATIENT_INVITE_REDIRECT_URL` como secreto de la función. Supabase proporciona automáticamente sus credenciales internas dentro de las Edge Functions.
 
-No incluyas una clave `service_role`, `secret` ni ninguna otra credencial privada en este proyecto.
+```powershell
+supabase functions deploy invite-patient
+supabase secrets set PATIENT_INVITE_REDIRECT_URL=fitcoach://activate
+```
 
-## Ejercicios y uso sin conexión
+La función verifica que quien invita sea `admin` o el entrenador principal del paciente antes de utilizar la API administrativa.
 
-El catálogo completo de 1,324 ejercicios se guarda en `data/exercises.json`. El service worker conserva la aplicación y el catálogo después de la primera visita, para que las búsquedas, instrucciones, el constructor de rutinas y los borradores continúen disponibles sin Internet.
+## Comandos
 
-Las miniaturas se cargan del repositorio de origen cuando hay conexión. Los datos y las instrucciones siguen disponibles sin ellas. Revisa `EXERCISES_NOTICE.md` y conserva su atribución para cualquier uso de las imágenes o GIFs.
+- `pnpm dev`: servidor local en el puerto 8082.
+- `pnpm build`: compilación de producción en `dist`.
+- `pnpm test`: pruebas automatizadas.
 
-## Sincronización de datos
+## Ejercicios
 
-- Clientes y rutinas se guardan directamente en Arnold V2 al estar conectado.
-- Cuando no hay red, los nuevos elementos se guardan como borradores en el navegador.
-- Al guardar una rutina conectada, sus ejercicios se incorporan a `fc_exercises` mediante el nombre único y se relacionan con `fc_routine_exercises`.
+El catálogo mantiene la licencia y atribución incluidas en `EXERCISES_NOTICE.md` y `EXERCISES_LICENSE.md`.
 
-Antes de usar información real, aplica las migraciones de Arnold V2 y revisa las políticas RLS para confirmar que solo administradores y entrenadores autorizados puedan consultar expedientes.
+## Puesta en marcha (nutriólogo)
+
+1. `pnpm install` (en la raíz del repositorio)
+2. Copia `.env.example` a `.env.local` y completa solo `VITE_SUPABASE_URL` y `VITE_SUPABASE_PUBLISHABLE_KEY` (nunca una `service_role`).
+3. Aplica las migraciones de `supabase/migrations/` (incluida `20261113004230_create_routine_rpc.sql`, que guarda cada rutina en una sola transacción).
+4. `pnpm dev` (en `web/` o en la raíz) y abre `http://localhost:8082`. Para producción: `pnpm build` y publica la carpeta `web/dist/`.
+
+### Roles y verificación en dos pasos
+- Cuenta `trainer`: entra con correo y contraseña.
+- Cuenta `admin`: las políticas RLS exigen MFA (aal2). La primera vez el panel muestra un QR para tu app de autenticación; después pide el código de 6 dígitos.
+
+### Sin conexión
+Los cambios de pacientes, mediciones y rutinas se guardan como borradores del usuario en el navegador y se envían solos al volver Internet. Los que fallen por datos inválidos aparecen en **Ajustes** para descartarlos.
+
+### Navegación y biblioteca
+- La navegación vive en la barra superior (Resumen, Pacientes, Rutinas, Ejercicios, Progreso). **Ajustes**, **Sincronizar** y **Cerrar sesión** están en el menú del usuario, arriba a la derecha. Junto a él se ve si hay conexión y cuántos cambios esperan sincronizarse.
+- La biblioteca de ejercicios filtra por músculo y busca por nombre, músculo o equipo. La etiqueta Compuesto/Aislado es una aproximación: un ejercicio es compuesto si trabaja 2 o más músculos secundarios en el catálogo.
+
+## Módulo Pacientes (Registrar · Consultar · Modificar)
+
+- **Registrar**: «+ Nuevo paciente» valida los datos en el cliente, crea el expediente con `fc_create_client`, registra el peso inicial y envía la invitación. Sin conexión queda como borrador.
+- **Consultar**: búsqueda por nombre, correo, teléfono u objetivo; filtros por estado (Activos, Pausados, Invitación pendiente, Baja) y ficha con estatura, nacimiento, último peso y rutinas.
+- **Modificar**: edición con control de concurrencia (no sobrescribe si otro usuario cambió el expediente), baja lógica y reactivación. Los errores de Postgres se muestran en español.
+
+## Perfil de usuario
+
+- El **engranaje ⚙ y el avatar** de la esquina superior derecha abren *Ajustes de cuenta* (foto, nombre, teléfono, correo, contraseña, estado de conexión y cola de borradores locales).
+- Permite cambiar **foto** (se recorta a 256 px y se guarda en el bucket público `avatars`, carpeta `<uid>/`), **nombre y teléfono** (`fc_profiles`), **correo** (Supabase Auth envía confirmación) y **contraseña** (`auth.updateUser`).
+- El nombre del encabezado y del saludo se actualiza al instante. El estado de conexión y los cambios pendientes se ven en el perfil; solo aparece un aviso en la parte superior cuando no hay Internet.
+- Migración: `20261113044751_profile_avatars_bucket.sql` (ya aplicada en el proyecto remoto).
+
+## Biblioteca de ejercicios (imágenes y español)
+
+Fuente: [hasaneyldrm/exercises-dataset](https://github.com/hasaneyldrm/exercises-dataset) — 1,324 ejercicios.
+
+- **Imágenes:** miniaturas 180×180 en `web/public/exercises/` (12 MB). La animación GIF se carga bajo demanda desde el repositorio original al abrir un ejercicio; si no hay conexión se muestra la miniatura. Media © [Gym visual](https://gymvisual.com/): mantener la atribución y no ampliar más allá de 180×180 (ver `EXERCISES_NOTICE.md`).
+- **Español:** las instrucciones vienen del dataset (`instruction_steps.es`); los **nombres** están traducidos en `scripts/exercise-names-es.tsv`. La búsqueda funciona en español e inglés y las rutinas nuevas guardan el nombre en español.
+- **Regenerar:** `git clone https://github.com/hasaneyldrm/exercises-dataset` y luego `DATASET_DIR=<ruta> python3 scripts/build_exercises.py` (genera un `exercises.json` de ~2 MB en lugar de 17 MB).

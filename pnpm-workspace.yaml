@@ -1,0 +1,9 @@
+packages:
+  - 'web'
+  - 'mobile'
+  - 'packages/*'
+
+nodeLinker: hoisted
+
+allowBuilds:
+  esbuild: true

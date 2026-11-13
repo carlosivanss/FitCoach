@@ -1,0 +1,17 @@
+node_modules/
+dist/
+dist-mobile/
+.env
+.env.local
+.env.*.local
+!.env.example
+*.log
+.DS_Store
+.expo/
+mobile/android/.gradle/
+mobile/android/**/build/
+mobile/android/local.properties
+mobile/android/**/*.jks
+mobile/android/**/*.keystore
+mobile/android/app/debug.keystore
+supabase/.temp/
