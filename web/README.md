@@ -7,9 +7,10 @@ Panel React para administrar pacientes, invitaciones, bajas, rutinas, biblioteca
 Desde la raíz del repositorio:
 
 ```powershell
-npm install
+pnpm install            # desde la raíz del repositorio
+cd web
 Copy-Item .env.example .env.local
-npm run dev
+pnpm dev
 ```
 
 Completa en `.env.local` solamente `VITE_SUPABASE_URL` y `VITE_SUPABASE_PUBLISHABLE_KEY`. Ambas identifican al proyecto desde el navegador y son públicas por diseño. La protección de expedientes depende de las políticas RLS.
@@ -29,9 +30,9 @@ La función verifica que quien invita sea `admin` o el entrenador principal del 
 
 ## Comandos
 
-- `npm run dev`: servidor local en el puerto 8082.
-- `npm run build`: compilación de producción en `dist`.
-- `npm test`: pruebas automatizadas.
+- `pnpm dev`: servidor local en el puerto 8082.
+- `pnpm build`: compilación de producción en `dist`.
+- `pnpm test`: pruebas automatizadas.
 
 ## Ejercicios
 
@@ -39,10 +40,10 @@ El catálogo mantiene la licencia y atribución incluidas en `EXERCISES_NOTICE.m
 
 ## Puesta en marcha (nutriólogo)
 
-1. `npm install`
+1. `pnpm install` (en la raíz del repositorio)
 2. Copia `.env.example` a `.env.local` y completa solo `VITE_SUPABASE_URL` y `VITE_SUPABASE_PUBLISHABLE_KEY` (nunca una `service_role`).
 3. Aplica las migraciones de `supabase/migrations/` (incluida `20261113004230_create_routine_rpc.sql`, que guarda cada rutina en una sola transacción).
-4. `npm run dev` y abre `http://localhost:8082`. Para producción: `npm run build` y publica la carpeta `dist/`.
+4. `pnpm dev` (en `web/` o en la raíz) y abre `http://localhost:8082`. Para producción: `pnpm build` y publica la carpeta `web/dist/`.
 
 ### Roles y verificación en dos pasos
 - Cuenta `trainer`: entra con correo y contraseña.

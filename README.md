@@ -4,7 +4,7 @@ Plataforma para que un nutriólogo administre pacientes y rutinas, y para que lo
 
 ## Estructura
 
-- `web`: panel React privado del nutriólogo.
+- `web`: panel React privado del nutriólogo (autocontenido: `package.json`, `vite.config.js`, `.env.local`, `public/`, `scripts/` y `dist/` viven ahí).
 - `mobile`: aplicación Expo + React Native para pacientes.
 - `packages/shared`: contratos y tipos compartidos.
 - `supabase/migrations`: esquema y políticas RLS.
@@ -14,11 +14,11 @@ Plataforma para que un nutriólogo administre pacientes y rutinas, y para que lo
 
 ```powershell
 pnpm install
-Copy-Item .env.example .env.local
+Copy-Item web/.env.example web/.env.local
 Copy-Item mobile/.env.example mobile/.env
 ```
 
-Completa los dos archivos locales con la URL y publishable key del mismo proyecto Supabase. Nunca guardes `service_role`, secret keys o contraseñas en el repositorio.
+Completa los dos archivos locales (`web/.env.local` y `mobile/.env`) con la URL y publishable key del mismo proyecto Supabase. Nunca guardes `service_role`, secret keys o contraseñas en el repositorio.
 
 ## Desarrollo
 
