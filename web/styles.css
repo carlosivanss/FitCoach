@@ -201,3 +201,6 @@ h3 { margin: 0; font-size: 15px; }
 .gear-button:hover { background: var(--surface-2); transform: rotate(45deg); }
 .gear-button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .topbar { align-items: center; gap: 10px; }
+
+.brand-logo { width: 36px; height: 36px; border-radius: 10px; display: block; flex: none; object-fit: contain; }
+.login-card .brand-logo { width: 48px; height: 48px; border-radius: 13px; }

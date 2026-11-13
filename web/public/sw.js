@@ -1,5 +1,5 @@
 const CACHE = 'fitcoach-react-v1';
-const FALLBACKS = ['/', '/data/exercises.json', '/manifest.webmanifest', '/EXERCISES_NOTICE.md'];
+const FALLBACKS = ['/', '/logo.png', '/data/exercises.json', '/manifest.webmanifest', '/EXERCISES_NOTICE.md'];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(caches.open(CACHE).then((cache) => cache.addAll(FALLBACKS)));
