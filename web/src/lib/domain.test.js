@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { validateClient, friendlyDbError, isInvitePending, matchesClientFilter, buildRoutinePayload, equipmentLabel, exerciseKind, muscleInfo, clampInt, initials, isNetworkError, localDate, statusClass, statusText, workoutVolume } from './domain.js';
+import { greetingName, firstName, validatePasswordChange, validateAvatarFile, validateClient, friendlyDbError, isInvitePending, matchesClientFilter, buildRoutinePayload, equipmentLabel, exerciseKind, muscleInfo, clampInt, initials, isNetworkError, localDate, statusClass, statusText, workoutVolume } from './domain.js';
 
 describe('reglas del panel', () => {
   it('traduce y clasifica estados de pacientes', () => {
@@ -73,4 +73,28 @@ describe('módulo pacientes', () => {
     expect(matchesClientFilter(gone, 'archived')).toBe(true);
     expect(matchesClientFilter(pending, 'invited')).toBe(true);
   });
+});
+
+describe('perfil de usuario', () => {
+  it('obtiene el primer nombre', () => {
+    expect(firstName('Ana María López')).toBe('Ana');
+    expect(firstName('', 'carlos@astreo.mx')).toBe('carlos');
+    expect(firstName('x@y.com', 'x@y.com')).toBe('x');
+  });
+  it('valida contraseña', () => {
+    expect(validatePasswordChange('corta', 'corta')).toMatch(/8/);
+    expect(validatePasswordChange('Larga-2026!', 'otra-cosa')).toMatch(/coinciden/);
+    expect(validatePasswordChange('Larga-2026!', 'Larga-2026!')).toBe('');
+  });
+  it('valida la foto', () => {
+    expect(validateAvatarFile(null)).toMatch(/Selecciona/);
+    expect(validateAvatarFile({ type: 'image/gif', size: 10 })).toMatch(/JPG/);
+    expect(validateAvatarFile({ type: 'image/png', size: 11 * 1024 * 1024 })).toMatch(/10 MB/);
+    expect(validateAvatarFile({ type: 'image/png', size: 1000 })).toBe('');
+  });
+});
+
+it('saluda con el nombre completo', () => {
+  expect(greetingName('Dra. Marisol Vega', 'm@x.mx')).toBe('Dra. Marisol Vega');
+  expect(greetingName('', 'carlos@astreo.mx')).toBe('carlos');
 });

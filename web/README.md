@@ -60,3 +60,10 @@ Los cambios de pacientes, mediciones y rutinas se guardan como borradores del us
 - **Registrar**: «+ Nuevo paciente» valida los datos en el cliente, crea el expediente con `fc_create_client`, registra el peso inicial y envía la invitación. Sin conexión queda como borrador.
 - **Consultar**: búsqueda por nombre, correo, teléfono u objetivo; filtros por estado (Activos, Pausados, Invitación pendiente, Baja) y ficha con estatura, nacimiento, último peso y rutinas.
 - **Modificar**: edición con control de concurrencia (no sobrescribe si otro usuario cambió el expediente), baja lógica y reactivación. Los errores de Postgres se muestran en español.
+
+## Perfil de usuario
+
+- El **avatar** de la esquina superior derecha abre la vista *Perfil de usuario* (también desde el menú ▾ → «Mi perfil» y desde la tarjeta «Hola, …» del Resumen).
+- Permite cambiar **foto** (se recorta a 256 px y se guarda en el bucket público `avatars`, carpeta `<uid>/`), **nombre y teléfono** (`fc_profiles`), **correo** (Supabase Auth envía confirmación) y **contraseña** (`auth.updateUser`).
+- El nombre del encabezado y del saludo se actualiza al instante. El estado de conexión y los cambios pendientes se ven en el perfil; solo aparece un aviso en la parte superior cuando no hay Internet.
+- Migración: `20261113044751_profile_avatars_bucket.sql` (ya aplicada en el proyecto remoto).

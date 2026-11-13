@@ -107,8 +107,8 @@ h3 { margin: 0; font-size: 15px; }
 .status-pill .online-dot { margin-right: 0; }
 .status-pill.offline { background: #fff1cc; color: #7a5a0a; }
 .status-pill b { background: #111111; color: #ffffff; border-radius: 999px; padding: 1px 7px; font-size: 11px; }
-.user-menu { position: relative; }
-.user-button { display: flex; align-items: center; gap: 10px; border: 1px solid var(--border); background: var(--surface); border-radius: 999px; padding: 4px 12px 4px 4px; color: var(--text); }
+.user-menu { position: relative; display: flex; align-items: center; gap: 8px; }
+.user-button { margin-left: 0; display: flex; align-items: center; gap: 10px; border: 1px solid var(--border); background: var(--surface); border-radius: 999px; padding: 4px 12px 4px 4px; color: var(--text); }
 .user-button:hover { background: var(--surface-2); }
 .avatar { width: 34px; height: 34px; font-size: 12px; }
 .user-name { display: grid; text-align: left; font-weight: 750; font-size: 13px; max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; line-height: 1.2; }
@@ -120,7 +120,7 @@ h3 { margin: 0; font-size: 15px; }
 .menu button:hover { background: var(--surface-2); }
 .menu button.danger { color: var(--red); }
 .page-head h1 { font-size: clamp(24px, 2.6vw, 30px); }
-@media (max-width: 760px) { .appbar-inner { flex-wrap: wrap; gap: 8px 12px; } .nav { order: 3; flex-basis: 100%; } .user-name, .caret { display: none; } .user-button { padding: 3px; } .status-pill { padding: 6px 10px; } }
+@media (max-width: 760px) { .appbar-inner { flex-wrap: wrap; gap: 8px 12px; } .nav { order: 3; flex-basis: 100%; } .user-name { display: none; } .user-button { padding: 8px 12px; } .status-pill { padding: 6px 10px; } }
 
 /* Biblioteca de ejercicios */
 .exercise-tools { display: grid; gap: 14px; margin-bottom: 16px; }
@@ -153,3 +153,24 @@ h3 { margin: 0; font-size: 15px; }
 
 .empty-row { margin: 0; padding: 28px 16px; text-align: center; color: var(--muted, #6b7280); }
 .card > .chips { margin-top: 12px; }
+
+/* Perfil, avatar y tarjeta de bienvenida */
+.avatar { overflow: hidden; flex: none; }
+.avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.avatar.lg { width: 64px; height: 64px; font-size: 22px; }
+.avatar.xl { width: 96px; height: 96px; font-size: 32px; }
+.avatar-button { border: 0; background: none; padding: 0; border-radius: 50%; cursor: pointer; display: inline-grid; transition: box-shadow .15s; }
+.avatar-button:hover, .avatar-button:focus-visible { box-shadow: 0 0 0 3px rgba(17, 24, 39, .15); outline: none; }
+.welcome-card { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; border-radius: 24px; margin-bottom: 16px; }
+.welcome-text { flex: 1 1 220px; min-width: 0; }
+.welcome-text h2 { margin: 2px 0 4px; font-size: 24px; }
+.welcome-text p { margin: 0; }
+.profile-hero { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; border-radius: 24px; margin-bottom: 16px; }
+.profile-hero-text { flex: 1 1 240px; min-width: 0; }
+.profile-hero-text h2 { margin: 0 0 2px; }
+.profile-tags { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+.profile-hero-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.profile-hero .status-banner { flex-basis: 100%; }
+.profile-page .card { border-radius: 24px; }
+.status-banner.ok { background: #ecfdf3; color: #166534; border-color: #bbf7d0; }
+.offline-banner { max-width: 1240px; margin: 12px auto 0; padding: 10px 16px; border-radius: 16px; background: #fffbeb; color: #92400e; border: 1px solid #fde68a; font-size: 14px; }

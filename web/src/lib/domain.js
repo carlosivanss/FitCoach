@@ -140,3 +140,31 @@ export function matchesClientFilter(client, filter) {
   if (filter === 'invited') return isInvitePending(client);
   return client.status === filter;
 }
+
+/** Primer nombre para saludos; cae al correo si no hay nombre. */
+export const firstName = (fullName, email = '') => {
+  const name = String(fullName || '').trim();
+  if (name && !name.includes('@')) return name.split(/\s+/)[0];
+  return String(email || '').split('@')[0] || 'bienvenido';
+};
+
+/** Valida el cambio de contraseña. Devuelve un mensaje en español o ''. */
+export function validatePasswordChange(password, confirm) {
+  if (String(password || '').length < 8) return 'La contraseña debe tener al menos 8 caracteres.';
+  if (password !== confirm) return 'Las contraseñas no coinciden.';
+  return '';
+}
+
+/** Valida un archivo de imagen de perfil (tipo y tamaño de origen). */
+export function validateAvatarFile(file) {
+  if (!file) return 'Selecciona una imagen.';
+  if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) return 'Usa una imagen JPG, PNG o WebP.';
+  if (file.size > 10 * 1024 * 1024) return 'La imagen no debe pesar más de 10 MB.';
+  return '';
+}
+
+/** Nombre para el saludo: nombre completo del perfil; si no existe, la parte local del correo. */
+export const greetingName = (fullName, email = '') => {
+  const name = String(fullName || '').trim();
+  return name && !name.includes('@') ? name : String(email || '').split('@')[0] || 'bienvenido';
+};
