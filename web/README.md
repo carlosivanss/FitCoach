@@ -67,3 +67,11 @@ Los cambios de pacientes, mediciones y rutinas se guardan como borradores del us
 - Permite cambiar **foto** (se recorta a 256 px y se guarda en el bucket público `avatars`, carpeta `<uid>/`), **nombre y teléfono** (`fc_profiles`), **correo** (Supabase Auth envía confirmación) y **contraseña** (`auth.updateUser`).
 - El nombre del encabezado y del saludo se actualiza al instante. El estado de conexión y los cambios pendientes se ven en el perfil; solo aparece un aviso en la parte superior cuando no hay Internet.
 - Migración: `20261113044751_profile_avatars_bucket.sql` (ya aplicada en el proyecto remoto).
+
+## Biblioteca de ejercicios (imágenes y español)
+
+Fuente: [hasaneyldrm/exercises-dataset](https://github.com/hasaneyldrm/exercises-dataset) — 1,324 ejercicios.
+
+- **Imágenes:** miniaturas 180×180 en `web/public/exercises/` (12 MB). La animación GIF se carga bajo demanda desde el repositorio original al abrir un ejercicio; si no hay conexión se muestra la miniatura. Media © [Gym visual](https://gymvisual.com/): mantener la atribución y no ampliar más allá de 180×180 (ver `EXERCISES_NOTICE.md`).
+- **Español:** las instrucciones vienen del dataset (`instruction_steps.es`); los **nombres** están traducidos en `scripts/exercise-names-es.tsv`. La búsqueda funciona en español e inglés y las rutinas nuevas guardan el nombre en español.
+- **Regenerar:** `git clone https://github.com/hasaneyldrm/exercises-dataset` y luego `DATASET_DIR=<ruta> python3 scripts/build_exercises.py` (genera un `exercises.json` de ~2 MB en lugar de 17 MB).

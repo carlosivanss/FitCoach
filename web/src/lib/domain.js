@@ -45,7 +45,7 @@ export function buildRoutinePayload(routine) {
       exercises: day.exercises.map((x) => {
         const repsMin = clampInt(x.reps_min, 1, 200, 10);
         return {
-          name: x.name,
+          name: exerciseName(x),
           muscle_group: x.target || x.muscle_group || x.category || 'general',
           secondary_muscles: x.secondary_muscles || [],
           exercise_type: exerciseKind(x),
@@ -168,3 +168,24 @@ export const greetingName = (fullName, email = '') => {
   const name = String(fullName || '').trim();
   return name && !name.includes('@') ? name : String(email || '').split('@')[0] || 'bienvenido';
 };
+
+/** Nombre visible del ejercicio: traducción al español si existe. */
+export const exerciseName = (x) => x?.name_es || x?.name || '';
+
+/** Texto en minúsculas para buscar por nombre (ES/EN), músculo y equipo. */
+export const exerciseSearchText = (x) =>
+  [x.name_es, x.name, muscleInfo(x.target).es, x.target, x.category, equipmentLabel(x.equipment), x.equipment].join(' ').toLowerCase();
+
+const SECONDARY_ES = {
+  shoulders: 'Hombros', hamstrings: 'Isquiotibiales', forearms: 'Antebrazos', triceps: 'Tríceps', biceps: 'Bíceps',
+  quadriceps: 'Cuádriceps', calves: 'Pantorrillas', glutes: 'Glúteos', core: 'Core', chest: 'Pecho',
+  'hip flexors': 'Flexores de cadera', obliques: 'Oblicuos', 'lower back': 'Espalda baja', rhomboids: 'Romboides',
+  trapezius: 'Trapecio', 'upper back': 'Espalda alta', traps: 'Trapecio', deltoids: 'Deltoides', 'rear deltoids': 'Deltoides posterior',
+  brachialis: 'Braquial', back: 'Espalda', ankles: 'Tobillos', feet: 'Pies', 'rotator cuff': 'Manguito rotador',
+  'latissimus dorsi': 'Dorsal ancho', 'ankle stabilizers': 'Estabilizadores de tobillo', soleus: 'Sóleo', wrists: 'Muñecas',
+  'upper chest': 'Pecho superior', 'wrist flexors': 'Flexores de muñeca', 'wrist extensors': 'Extensores de muñeca', hands: 'Manos',
+  abdominals: 'Abdominales', sternocleidomastoid: 'Esternocleidomastoideo', 'inner thighs': 'Muslo interno', 'grip muscles': 'Músculos de agarre',
+  shins: 'Espinillas', lats: 'Dorsales', 'lower abs': 'Abdomen inferior', groin: 'Ingle',
+};
+/** Etiqueta en español para músculos secundarios del dataset. */
+export const secondaryLabel = (value) => SECONDARY_ES[value] || (value ? value[0].toUpperCase() + value.slice(1) : '');

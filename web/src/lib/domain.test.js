@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { greetingName, firstName, validatePasswordChange, validateAvatarFile, validateClient, friendlyDbError, isInvitePending, matchesClientFilter, buildRoutinePayload, equipmentLabel, exerciseKind, muscleInfo, clampInt, initials, isNetworkError, localDate, statusClass, statusText, workoutVolume } from './domain.js';
+import { exerciseName, exerciseSearchText, secondaryLabel, greetingName, firstName, validatePasswordChange, validateAvatarFile, validateClient, friendlyDbError, isInvitePending, matchesClientFilter, buildRoutinePayload, equipmentLabel, exerciseKind, muscleInfo, clampInt, initials, isNetworkError, localDate, statusClass, statusText, workoutVolume } from './domain.js';
 
 describe('reglas del panel', () => {
   it('traduce y clasifica estados de pacientes', () => {
@@ -97,4 +97,16 @@ describe('perfil de usuario', () => {
 it('saluda con el nombre completo', () => {
   expect(greetingName('Dra. Marisol Vega', 'm@x.mx')).toBe('Dra. Marisol Vega');
   expect(greetingName('', 'carlos@astreo.mx')).toBe('carlos');
+});
+
+describe('biblioteca de ejercicios', () => {
+  it('usa el nombre en español y busca en ambos idiomas', () => {
+    const x = { name: 'barbell bench press', name_es: 'Press de banca con barra', target: 'pectorals', equipment: 'barbell' };
+    expect(exerciseName(x)).toBe('Press de banca con barra');
+    expect(exerciseName({ name: 'plank' })).toBe('plank');
+    expect(exerciseSearchText(x)).toContain('bench');
+    expect(exerciseSearchText(x)).toContain('banca');
+    expect(exerciseSearchText(x)).toContain('pectorales');
+    expect(secondaryLabel('hip flexors')).toBe('Flexores de cadera');
+  });
 });
