@@ -3,7 +3,7 @@
   "short_name": "FitCoach",
   "start_url": "./",
   "display": "standalone",
-  "background_color": "#0a120d",
-  "theme_color": "#0a120d",
+  "background_color": "#f4f5f7",
+  "theme_color": "#f4f5f7",
   "description": "Panel de administración de FitCoach con biblioteca de ejercicios disponible sin conexión."
 }

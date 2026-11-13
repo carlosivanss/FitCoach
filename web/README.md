@@ -36,3 +36,17 @@ La función verifica que quien invita sea `admin` o el entrenador principal del 
 ## Ejercicios
 
 El catálogo mantiene la licencia y atribución incluidas en `EXERCISES_NOTICE.md` y `EXERCISES_LICENSE.md`.
+
+## Puesta en marcha (nutriólogo)
+
+1. `npm install`
+2. Copia `.env.example` a `.env.local` y completa solo `VITE_SUPABASE_URL` y `VITE_SUPABASE_PUBLISHABLE_KEY` (nunca una `service_role`).
+3. Aplica las migraciones de `supabase/migrations/` (incluida `20261113004230_create_routine_rpc.sql`, que guarda cada rutina en una sola transacción).
+4. `npm run dev` y abre `http://localhost:8082`. Para producción: `npm run build` y publica la carpeta `dist/`.
+
+### Roles y verificación en dos pasos
+- Cuenta `trainer`: entra con correo y contraseña.
+- Cuenta `admin`: las políticas RLS exigen MFA (aal2). La primera vez el panel muestra un QR para tu app de autenticación; después pide el código de 6 dígitos.
+
+### Sin conexión
+Los cambios de pacientes, mediciones y rutinas se guardan como borradores del usuario en el navegador y se envían solos al volver Internet. Los que fallen por datos inválidos aparecen en **Ajustes** para descartarlos.
