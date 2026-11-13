@@ -63,7 +63,7 @@ Los cambios de pacientes, mediciones y rutinas se guardan como borradores del us
 
 ## Perfil de usuario
 
-- El **avatar** de la esquina superior derecha abre la vista *Perfil de usuario* (también desde el menú ▾ → «Mi perfil» y desde la tarjeta «Hola, …» del Resumen).
+- El **engranaje ⚙ y el avatar** de la esquina superior derecha abren *Ajustes de cuenta* (foto, nombre, teléfono, correo, contraseña, estado de conexión y cola de borradores locales).
 - Permite cambiar **foto** (se recorta a 256 px y se guarda en el bucket público `avatars`, carpeta `<uid>/`), **nombre y teléfono** (`fc_profiles`), **correo** (Supabase Auth envía confirmación) y **contraseña** (`auth.updateUser`).
 - El nombre del encabezado y del saludo se actualiza al instante. El estado de conexión y los cambios pendientes se ven en el perfil; solo aparece un aviso en la parte superior cuando no hay Internet.
 - Migración: `20261113044751_profile_avatars_bucket.sql` (ya aplicada en el proyecto remoto).

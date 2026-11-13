@@ -197,3 +197,7 @@ h3 { margin: 0; font-size: 15px; }
 }
 .side-welcome .welcome-text { flex: 0 0 auto; }
 @media (max-width: 860px) { .content-col .main { padding-top: 56px; } }
+.gear-button { width: 40px; height: 40px; display: inline-grid; place-items: center; border: 1px solid var(--border); background: var(--surface); border-radius: 50%; color: var(--text); cursor: pointer; transition: background .15s, transform .3s; }
+.gear-button:hover { background: var(--surface-2); transform: rotate(45deg); }
+.gear-button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.topbar { align-items: center; gap: 10px; }
