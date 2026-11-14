@@ -1,9 +1,10 @@
 import { useEffect } from "react";
-import { Stack } from "expo-router";
-import { router } from "expo-router";
+import { Stack, router } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { Linking } from "react-native";
+import { SafeAreaProvider } from "react-native-safe-area-context";
 import { consumeAuthLink } from "@/lib/authLink";
+import { WorkoutProvider } from "@/lib/workoutStore";
 
 export default function RootLayout() {
   useEffect(() => {
@@ -22,5 +23,8 @@ export default function RootLayout() {
     return () => subscription.remove();
   }, []);
 
-  return <><StatusBar style="dark" /><Stack screenOptions={{ headerShown: false }} /></>;
+  return <SafeAreaProvider><WorkoutProvider>
+    <StatusBar style="dark" />
+    <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: "#fff" } }} />
+  </WorkoutProvider></SafeAreaProvider>;
 }
