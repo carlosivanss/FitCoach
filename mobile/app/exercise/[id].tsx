@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Image, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import { Empty, Screen, TitleBar } from "@/components/ui";
-import { findRoutineEx, loadMe } from "@/lib/data";
+import { RoutineEx, ensureRoutineEx, findRoutineEx, loadMe } from "@/lib/data";
 import { Unit, useWorkout } from "@/lib/workoutStore";
 import { colors, radius } from "@/theme";
 
@@ -11,7 +11,9 @@ const fmt = (t: number) => `${Math.floor(t / 60)}:${String(t % 60).padStart(2, "
 export default function ExerciseSets() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const w = useWorkout();
-  const ex = findRoutineEx(Number(id));
+  const [ex, setEx] = useState<RoutineEx | undefined>(findRoutineEx(Number(id)));
+  const [missing, setMissing] = useState(false);
+  useEffect(() => { if (!ex) void ensureRoutineEx(Number(id)).then((r) => (r ? setEx(r) : setMissing(true))); }, [id]);
   const [rest, setRest] = useState(ex?.rest_seconds ?? 90);
   const [left, setLeft] = useState<number | null>(null);
   const [defaultUnit, setDefaultUnit] = useState<Unit>("kg");
@@ -19,7 +21,7 @@ export default function ExerciseSets() {
 
   useEffect(() => { void loadMe().then((m) => m && setDefaultUnit(m.units)); return () => { if (timer.current) clearInterval(timer.current); }; }, []);
 
-  if (!ex) return <Screen><TitleBar title="Ejercicio" /><Empty title="Ejercicio no disponible" text="Vuelve a la rutina y ábrelo de nuevo." /></Screen>;
+  if (!ex) return <Screen><TitleBar title="Ejercicio" />{missing ? <Empty title="Ejercicio no disponible" text="Vuelve a la rutina y ábrelo de nuevo." /> : null}</Screen>;
 
   const total = w.setCount(ex.id, ex.sets);
   const defReps = String(ex.reps_max ?? ex.reps_min ?? "");

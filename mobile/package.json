@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@arnold/shared": "workspace:*",
+    "@expo/metro-runtime": "~6.1.2",
     "@supabase/supabase-js": "latest",
     "expo": "~54.0.36",
     "expo-router": "~6.0.24",
@@ -21,11 +22,13 @@
     "react-native": "0.81.5",
     "react-native-safe-area-context": "~5.6.0",
     "react-native-screens": "~4.16.0",
-    "react-native-url-polyfill": "latest"
+    "react-native-url-polyfill": "latest",
+    "react-native-web": "~0.21.4"
   },
   "devDependencies": {
     "@expo/ngrok": "4.1.0",
     "@types/react": "~19.1.10",
+    "react-dom": "19.1.0",
     "typescript": "~5.9.2"
   }
 }

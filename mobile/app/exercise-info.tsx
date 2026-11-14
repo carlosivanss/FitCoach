@@ -1,14 +1,17 @@
+import { useEffect, useState } from "react";
 import { Image, ScrollView, StyleSheet, Text, View } from "react-native";
 import { useLocalSearchParams } from "expo-router";
 import { Empty, Screen, TitleBar } from "@/components/ui";
-import { findRoutineEx } from "@/lib/data";
+import { RoutineEx, ensureRoutineEx, findRoutineEx } from "@/lib/data";
 import { colors, muscleLabel, radius } from "@/theme";
 
 /** Técnica del ejercicio: demostración, "Cómo hacerlo" y consejo (PDF, pantalla de Lagartija). */
 export default function ExerciseInfo() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const ex = findRoutineEx(Number(id));
-  if (!ex) return <Screen><TitleBar title="Ejercicio" /><Empty title="Ejercicio no disponible" /></Screen>;
+  const [ex, setEx] = useState<RoutineEx | undefined>(findRoutineEx(Number(id)));
+  const [missing, setMissing] = useState(false);
+  useEffect(() => { if (!ex) void ensureRoutineEx(Number(id)).then((r) => (r ? setEx(r) : setMissing(true))); }, [id]);
+  if (!ex) return <Screen><TitleBar title="Ejercicio" />{missing ? <Empty title="Ejercicio no disponible" /> : null}</Screen>;
   const media = ex.gif_url ?? ex.image_url;
   return <Screen>
     <TitleBar title={ex.name} subtitle={muscleLabel(ex.muscle_group).toUpperCase()} />

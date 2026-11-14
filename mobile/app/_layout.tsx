@@ -5,6 +5,7 @@ import { Linking } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { consumeAuthLink } from "@/lib/authLink";
 import { WorkoutProvider } from "@/lib/workoutStore";
+import { DraftProvider } from "@/lib/draftStore";
 
 export default function RootLayout() {
   useEffect(() => {
@@ -23,8 +24,8 @@ export default function RootLayout() {
     return () => subscription.remove();
   }, []);
 
-  return <SafeAreaProvider><WorkoutProvider>
+  return <SafeAreaProvider><WorkoutProvider><DraftProvider>
     <StatusBar style="dark" />
     <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: "#fff" } }} />
-  </WorkoutProvider></SafeAreaProvider>;
+  </DraftProvider></WorkoutProvider></SafeAreaProvider>;
 }
