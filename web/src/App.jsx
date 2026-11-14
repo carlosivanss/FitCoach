@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { assertSupabase, isConfigured, supabase } from './lib/supabase.js';
-import { CLIENT_FILTERS, secondaryLabel, exerciseName, exerciseSearchText, greetingName, validateAvatarFile, validatePasswordChange, DAY_NAMES, KIND_LABEL, friendlyDbError, isInvitePending, matchesClientFilter, validateClient, buildRoutinePayload, equipmentLabel, exerciseKind, initials, muscleInfo, isNetworkError, localDate, statusClass, statusText, workoutVolume } from './lib/domain.js';
+import { formatDate, parseDecimal, CLIENT_FILTERS, secondaryLabel, exerciseName, exerciseSearchText, greetingName, validateAvatarFile, validatePasswordChange, DAY_NAMES, KIND_LABEL, friendlyDbError, isInvitePending, matchesClientFilter, validateClient, buildRoutinePayload, equipmentLabel, exerciseKind, initials, muscleInfo, isNetworkError, localDate, statusClass, statusText, workoutVolume } from './lib/domain.js';
 
 const NAV = [['dashboard','Resumen'],['clients','Pacientes'],['routines','Rutinas'],['exercises','Ejercicios'],['progress','Progreso']];
 const MUSCLE_FILTERS = ['abs','pectorals','biceps','triceps','delts','lats','upper back','quads','glutes','hamstrings','calves'];
@@ -14,7 +14,6 @@ const fallbackExercises = [
 
 const readDrafts = () => { try { return JSON.parse(localStorage.getItem(DRAFTS_KEY) || '[]'); } catch { return []; } };
 const saveDrafts = (items) => localStorage.setItem(DRAFTS_KEY, JSON.stringify(items));
-const formatDate = (value) => value ? new Intl.DateTimeFormat('es-MX',{dateStyle:'medium'}).format(new Date(value)) : '—';
 function errorMessage(cause,fallback='No se pudo completar la operación.') {
   if(typeof cause==='string')return cause;
   if(!cause||typeof cause!=='object')return fallback;
@@ -164,7 +163,7 @@ function LineChart({ rows, field, color='var(--green)', suffix='' }) {
 }
 
 function ClientForm({ client, onClose, onSave, onInvite }) {
-  const [form,setForm]=useState(client||{full_name:'',email:'',phone:'',status:'active',goal:'',height_cm:'',birth_date:'',initial_weight_kg:'',notes:''}); const [busy,setBusy]=useState(false); const [error,setError]=useState('');
+  const [form,setForm]=useState(client?{...client,height_cm:client.height_cm==null?'':String(Number(client.height_cm))}:{full_name:'',email:'',phone:'',status:'active',goal:'',height_cm:'',birth_date:'',initial_weight_kg:'',notes:''}); const [busy,setBusy]=useState(false); const [error,setError]=useState('');
   const change=(e)=>setForm({...form,[e.target.name]:e.target.value});
   async function submit(e){e.preventDefault();setError('');const invalid=validateClient(form);if(invalid){setError(invalid);return;}setBusy(true);try{await onSave(form);onClose();}catch(cause){setError(errorMessage(cause,'No se pudo guardar el paciente.'));}finally{setBusy(false);}}
   async function resend(){setBusy(true);setError('');try{await onInvite(client);onClose();}catch(cause){setError(`No se pudo enviar la invitación: ${await functionErrorMessage(cause)}`);}finally{setBusy(false);}}
@@ -174,9 +173,9 @@ function ClientForm({ client, onClose, onSave, onInvite }) {
       <label>Correo<input className="field" name="email" type="email" required={!client} value={form.email||''} onChange={change}/></label>
       <label>Teléfono<input className="field" name="phone" value={form.phone||''} onChange={change}/></label>
       <label>Estado<select className="select" name="status" value={form.status||'active'} onChange={change}><option value="active">Activo</option><option value="paused">Pausado</option><option value="archived">Baja</option></select></label>
-      <label>Estatura (cm)<input className="field" name="height_cm" type="number" min="50" max="280" step="0.01" value={form.height_cm||''} onChange={change}/></label>
-      <label>Fecha de nacimiento<input className="field" name="birth_date" type="date" value={form.birth_date||''} onChange={change}/></label>
-      {!client&&<label>Peso inicial (kg)<input className="field" name="initial_weight_kg" type="number" min="10" max="700" step="0.01" value={form.initial_weight_kg||''} onChange={change}/></label>}
+      <label>Estatura (cm)<input className="field" name="height_cm" type="text" inputMode="decimal" autoComplete="off" placeholder="Ej. 175" pattern="[0-9]*[.,]?[0-9]{0,2}" value={form.height_cm??''} onChange={change}/></label>
+      <label>Fecha de nacimiento<input className="field" name="birth_date" type="date" max={localDate()} value={form.birth_date||''} onChange={change}/></label>
+      {!client&&<label>Peso inicial (kg)<input className="field" name="initial_weight_kg" type="text" inputMode="decimal" autoComplete="off" placeholder="Ej. 72.5" pattern="[0-9]*[.,]?[0-9]{0,2}" value={form.initial_weight_kg??''} onChange={change}/></label>}
       <label className="wide">Objetivo<input className="field" name="goal" value={form.goal||''} onChange={change}/></label>
       <label className="wide">Notas<textarea className="field textarea" name="notes" rows="4" value={form.notes||''} onChange={change}/></label>
     </div>{error&&<div className="status-banner error">{error}</div>}<div className="form-actions"><button type="button" className="button" onClick={onClose}>Cancelar</button>{client?.email&&!client.user_id&&<button disabled={busy} type="button" className="button" onClick={resend}>Reenviar invitación</button>}<button className="button primary" disabled={busy}>{busy?'Guardando…':'Guardar'}</button></div></form>
@@ -250,13 +249,13 @@ export default function App(){
   const measurementRpcArgs=(f)=>{const n=v=>v===''||v==null?null:Number(v);return {p_client_id:Number(f.client_id),p_measured_on:f.measured_on,p_weight_kg:n(f.weight_kg),p_body_fat_percent:n(f.body_fat_percent),p_muscle_mass_kg:n(f.muscle_mass_kg),p_waist_cm:n(f.waist_cm),p_notes:f.notes?.trim()||null};};
   async function recordMeasurement(form){const {error}=await supabase.rpc('fc_record_body_measurement',measurementRpcArgs(form));if(error)throw error;}
   async function saveClient(form){
-    const payload={full_name:form.full_name.trim(),email:form.email?.trim()||null,phone:form.phone?.trim()||null,status:form.status,goal:form.goal?.trim()||null,height_cm:form.height_cm?Number(form.height_cm):null,birth_date:form.birth_date||null,notes:form.notes?.trim()||null,archived_at:form.status==='archived'?(form.archived_at||new Date().toISOString()):null};
+    const payload={full_name:form.full_name.trim(),email:form.email?.trim()||null,phone:form.phone?.trim()||null,status:form.status,goal:form.goal?.trim()||null,height_cm:parseDecimal(form.height_cm),birth_date:form.birth_date||null,notes:form.notes?.trim()||null,archived_at:form.status==='archived'?(form.archived_at||new Date().toISOString()):null};
     if(!['trainer','admin'].includes(tokenAppRole(session)))throw new Error(`La sesión tiene rol "${tokenAppRole(session)}" en lugar de "trainer". Cierra sesión y vuelve a entrar.`);
     const draft={type:'client',action:form.id?'update':'insert',recordId:form.id,payload};
     const queued=await runOrQueue(draft,async()=>{
       if(form.id){let q=supabase.from('fc_clients').update(payload).eq('id',form.id);if(form.updated_at)q=q.eq('updated_at',form.updated_at);const {data:rows,error}=await q.select('id');if(error)throw error;if(!rows?.length)throw new Error('No se guardó: el expediente cambió desde que lo abriste o no tienes permiso. Recarga e inténtalo de nuevo.');return;}
       const {data:created,error}=await supabase.rpc('fc_create_client',clientRpcArgs(payload));if(error)throw error;
-      if(form.initial_weight_kg)await recordMeasurement({client_id:created.id,measured_on:localDate(),weight_kg:form.initial_weight_kg});
+      if(form.initial_weight_kg)await recordMeasurement({client_id:created.id,measured_on:localDate(),weight_kg:parseDecimal(form.initial_weight_kg)});
       if(created?.email){try{await invite(created);}catch(cause){await loadData();throw new Error(`Paciente creado, pero la invitación falló: ${await functionErrorMessage(cause)}`);}}
     });
     if(queued){notify('Sin conexión: el cambio se enviará automáticamente cuando vuelva Internet.');return;}
