@@ -14,7 +14,10 @@ Plataforma para que un nutriólogo administre pacientes y rutinas, y para que lo
 
 ```powershell
 pnpm install
-Copy-Item web/.env.example web/.env.local
+@"
+VITE_SUPABASE_URL=https://TU-PROYECTO.supabase.co
+VITE_SUPABASE_PUBLISHABLE_KEY=TU_CLAVE_PUBLICABLE
+"@ | Set-Content -Path web\.env.local -Encoding utf8
 Copy-Item mobile/.env.example mobile/.env
 ```
 
