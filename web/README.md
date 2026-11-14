@@ -9,7 +9,10 @@ Desde la raíz del repositorio:
 ```powershell
 pnpm install            # desde la raíz del repositorio
 cd web
-Copy-Item .env.example .env.local
+@"
+VITE_SUPABASE_URL=https://TU-PROYECTO.supabase.co
+VITE_SUPABASE_PUBLISHABLE_KEY=TU_CLAVE_PUBLICABLE
+"@ | Set-Content -Path .env.local -Encoding utf8
 pnpm dev
 ```
 
@@ -41,7 +44,7 @@ El catálogo mantiene la licencia y atribución incluidas en `EXERCISES_NOTICE.m
 ## Puesta en marcha (nutriólogo)
 
 1. `pnpm install` (en la raíz del repositorio)
-2. Copia `.env.example` a `.env.local` y completa solo `VITE_SUPABASE_URL` y `VITE_SUPABASE_PUBLISHABLE_KEY` (nunca una `service_role`).
+2. Crea `web/.env.local` (ya no hay `.env.example`) con solo `VITE_SUPABASE_URL` y `VITE_SUPABASE_PUBLISHABLE_KEY` (nunca una `service_role`).
 3. Aplica las migraciones de `supabase/migrations/` (incluida `20261113004230_create_routine_rpc.sql`, que guarda cada rutina en una sola transacción).
 4. `pnpm dev` (en `web/` o en la raíz) y abre `http://localhost:8082`. Para producción: `pnpm build` y publica la carpeta `web/dist/`.
 
