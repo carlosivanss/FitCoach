@@ -113,13 +113,13 @@ export function validateClient(form, today = localDate()) {
   const phone = String(form.phone || '').trim();
   if (phone && phone.replace(/\D/g, '').length < 7) return 'El teléfono debe tener al menos 7 dígitos.';
   if (form.height_cm !== '' && form.height_cm != null) {
-    const h = Number(form.height_cm);
-    if (!Number.isFinite(h) || h < 50 || h > 280) return 'La estatura debe estar entre 50 y 280 cm.';
+    const h = parseDecimal(form.height_cm);
+    if (h == null || h < 50 || h > 280) return 'La estatura debe estar entre 50 y 280 cm.';
   }
   if (form.birth_date && form.birth_date > today) return 'La fecha de nacimiento no puede ser futura.';
   if (!form.id && form.initial_weight_kg !== '' && form.initial_weight_kg != null) {
-    const w = Number(form.initial_weight_kg);
-    if (!Number.isFinite(w) || w < 10 || w > 700) return 'El peso inicial debe estar entre 10 y 700 kg.';
+    const w = parseDecimal(form.initial_weight_kg);
+    if (w == null || w < 10 || w > 700) return 'El peso inicial debe estar entre 10 y 700 kg.';
   }
   return '';
 }
@@ -189,3 +189,19 @@ const SECONDARY_ES = {
 };
 /** Etiqueta en español para músculos secundarios del dataset. */
 export const secondaryLabel = (value) => SECONDARY_ES[value] || (value ? value[0].toUpperCase() + value.slice(1) : '');
+
+/** Fecha para mostrar. Las fechas sin hora (YYYY-MM-DD) se interpretan como día local, no UTC,
+ *  para que no se muestren un día antes en husos horarios al oeste de Greenwich. */
+export function formatDate(value, locale = 'es-MX') {
+  if (!value) return '—';
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(value));
+  const date = m ? new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3])) : new Date(value);
+  return Number.isNaN(date.getTime()) ? '—' : new Intl.DateTimeFormat(locale, { dateStyle: 'medium' }).format(date);
+}
+
+/** Convierte "1,75" o "175.5" en número; vacío o inválido devuelve null. */
+export function parseDecimal(value) {
+  if (value === '' || value == null) return null;
+  const n = Number(String(value).trim().replace(',', '.'));
+  return Number.isFinite(n) ? n : null;
+}

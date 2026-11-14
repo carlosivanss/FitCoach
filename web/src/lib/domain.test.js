@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { exerciseName, exerciseSearchText, secondaryLabel, greetingName, firstName, validatePasswordChange, validateAvatarFile, validateClient, friendlyDbError, isInvitePending, matchesClientFilter, buildRoutinePayload, equipmentLabel, exerciseKind, muscleInfo, clampInt, initials, isNetworkError, localDate, statusClass, statusText, workoutVolume } from './domain.js';
+import { formatDate, parseDecimal, exerciseName, exerciseSearchText, secondaryLabel, greetingName, firstName, validatePasswordChange, validateAvatarFile, validateClient, friendlyDbError, isInvitePending, matchesClientFilter, buildRoutinePayload, equipmentLabel, exerciseKind, muscleInfo, clampInt, initials, isNetworkError, localDate, statusClass, statusText, workoutVolume } from './domain.js';
 
 describe('reglas del panel', () => {
   it('traduce y clasifica estados de pacientes', () => {
@@ -108,5 +108,23 @@ describe('biblioteca de ejercicios', () => {
     expect(exerciseSearchText(x)).toContain('banca');
     expect(exerciseSearchText(x)).toContain('pectorales');
     expect(secondaryLabel('hip flexors')).toBe('Flexores de cadera');
+  });
+});
+
+describe('fechas y decimales', () => {
+  it('muestra la fecha de nacimiento sin corrimiento de día', () => {
+    expect(formatDate('2006-09-14')).toBe(new Intl.DateTimeFormat('es-MX', { dateStyle: 'medium' }).format(new Date(2006, 8, 14)));
+    expect(formatDate('')).toBe('—');
+    expect(formatDate('no-fecha')).toBe('—');
+  });
+  it('convierte decimales con coma o punto', () => {
+    expect(parseDecimal('1,75')).toBe(1.75);
+    expect(parseDecimal('186')).toBe(186);
+    expect(parseDecimal('')).toBeNull();
+    expect(parseDecimal('abc')).toBeNull();
+  });
+  it('valida estatura con coma', () => {
+    expect(validateClient({ full_name: 'Ana Pérez', height_cm: '175,5' })).toBe('');
+    expect(validateClient({ full_name: 'Ana Pérez', height_cm: '20' })).toMatch(/estatura/);
   });
 });
