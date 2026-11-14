@@ -229,3 +229,14 @@ h3 { margin: 0; font-size: 15px; }
 .side-settings.active { background: #111111; color: #ffffff; }
 .side-settings:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .side-settings svg { flex: none; }
+
+/* Barras de desplazamiento: delgadas, redondeadas y discretas */
+:root { --scroll-thumb: rgba(17, 24, 39, 0.22); --scroll-thumb-hover: rgba(17, 24, 39, 0.42); }
+* { scrollbar-width: thin; scrollbar-color: var(--scroll-thumb) transparent; }
+html { scrollbar-gutter: stable; }
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track, ::-webkit-scrollbar-corner { background: transparent; }
+::-webkit-scrollbar-button { display: none; width: 0; height: 0; }
+::-webkit-scrollbar-thumb { background: var(--scroll-thumb); border-radius: 999px; border: 3px solid transparent; background-clip: content-box; min-height: 40px; }
+::-webkit-scrollbar-thumb:hover { background: var(--scroll-thumb-hover); background-clip: content-box; }
+@media (hover: none) { ::-webkit-scrollbar { width: 6px; height: 6px; } }
